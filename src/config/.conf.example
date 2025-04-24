@@ -1,0 +1,10 @@
+[SERVICE]
+PORT=8080
+
+[DATABASE]
+DB_HOST=localhost
+DB_PORT=3000
+DB_USERNAME="username"
+DB_PASSWORD="password"
+DB_DRIVER="driver"
+DB_NAME="db_name"
