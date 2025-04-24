@@ -1,7 +1,7 @@
 package database
 
 import (
-	"auth_microservice/internal/config"
+	"github.com/LucasPurkota/auth_microservice/internal/config"
 	"fmt"
 	"log"
 	"net/url"

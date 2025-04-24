@@ -12,6 +12,6 @@ go.work.sum
 .env
 
 *.conf
-*.mod
-*.sum
+# *.mod
+# *.sum
 bin

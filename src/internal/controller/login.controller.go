@@ -1,9 +1,8 @@
 package controller
 
 import (
-	"auth_microservice/internal/database"
-	"auth_microservice/internal/model"
-
+	"github.com/LucasPurkota/auth_microservice/internal/database"
+	"github.com/LucasPurkota/auth_microservice/internal/model"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )

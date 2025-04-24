@@ -1,9 +1,9 @@
 package main
 
 import (
-	"auth_microservice/internal/config"
-	"auth_microservice/internal/database"
-	"auth_microservice/routes"
+	"github.com/LucasPurkota/auth_microservice/internal/config"
+	"github.com/LucasPurkota/auth_microservice/internal/database"
+	"github.com/LucasPurkota/auth_microservice/routes"
 	"fmt"
 )
 

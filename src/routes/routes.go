@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"auth_microservice/internal/controller"
 	"time"
+
+	"github.com/LucasPurkota/auth_microservice/internal/controller"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
