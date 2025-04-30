@@ -63,7 +63,7 @@ func Login(c *gin.Context) {
 			return
 		}
 
-		err = redisClient.Set(ctx, cacheKey, userJSON, 5*time.Minute).Err()
+		err = redisClient.Set(ctx, cacheKey, userJSON, 1*time.Minute).Err()
 		if err != nil {
 			c.JSON(500, gin.H{"error": "Erro ao salvar no cache"})
 			return
@@ -86,6 +86,6 @@ func Login(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"data":          usuario,
-		"autentication": "Autencicado",
+		"autentication": "Autenticado",
 	})
 }
