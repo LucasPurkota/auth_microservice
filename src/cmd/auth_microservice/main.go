@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/LucasPurkota/auth_microservice/internal/config"
 	"github.com/LucasPurkota/auth_microservice/internal/database"
-	"github.com/LucasPurkota/auth_microservice/routes"
-	"fmt"
+	"github.com/LucasPurkota/auth_microservice/internal/routes"
 )
 
 func main() {
