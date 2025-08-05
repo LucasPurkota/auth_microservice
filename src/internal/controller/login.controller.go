@@ -1,96 +1,49 @@
 package controller
 
 import (
-	"context"
+	"net/http"
 
 	"github.com/LucasPurkota/auth_microservice/internal/database"
+	"github.com/LucasPurkota/auth_microservice/internal/model/dto"
 	"github.com/LucasPurkota/auth_microservice/internal/model/entity"
 	"github.com/LucasPurkota/auth_microservice/internal/util"
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
-	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
-func gerarHashSenha(senha string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(senha), bcrypt.DefaultCost)
-	return string(hash), err
-}
-
-func verificarSenha(senha, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(senha))
-	return err == nil
-}
-
-var ctx = context.Background()
-
-var redisClient *redis.Client
-
-func init() {
-	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0,
-	})
-}
-
 func Login(c *gin.Context) {
-	email := c.Param("email")
-	senhas := c.Param("senha")
+	var userLogin dto.UserLogin
+	if err := c.ShouldBindJSON(&userLogin); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Json"})
+		return
+	}
 
-	// cacheKey := "usuario:senha:" + email
-	// val, err := redisClient.Get(ctx, cacheKey).Result()
+	var user entity.User
 
-	var usuario entity.User
-
-	// if err == redis.Nil {
 	query := database.Gorm.Table("public.user").
-		Model(entity.User{}).
-		Where("email = ?", email).
-		First(&usuario)
+		Where("email = ?", userLogin.Email).
+		First(&user)
 
-	if query.Error != nil {
-		c.JSON(500, gin.H{"error": "Erro ao consultar o banco de dados"})
-		return  
+	if query.Error != nil && query.Error != gorm.ErrRecordNotFound {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error fetching user"})
+		return
 	} else if query.RowsAffected == 0 {
-		c.JSON(404, gin.H{"error": "Usuário não encontrado"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "email or password is incorrect"})
 		return
 	}
 
-	// 	userJSON, err := json.Marshal(usuario)
-	// 	if err != nil {
-	// 		c.JSON(500, gin.H{"error": "Erro ao serializar usuário"})
-	// 		return
-	// 	}
-
-	// 	err = redisClient.Set(ctx, cacheKey, userJSON, 1*time.Minute).Err()
-	// 	if err != nil {
-	// 		c.JSON(500, gin.H{"error": "Erro ao salvar no cache"})
-	// 		return
-	// 	}
-	// } else if err != nil {
-	// 	c.JSON(500, gin.H{"error": "Erro no cache: " + err.Error()})
-	// 	return
-	// } else {
-	// 	err = json.Unmarshal([]byte(val), &usuario)
-	// 	if err != nil {
-	// 		c.JSON(500, gin.H{"error": "Erro ao desserializar usuário do cache"})
-	// 		return
-	// 	}
-	// }
-
-	if !verificarSenha(senhas, usuario.Password) {
-		c.JSON(401, gin.H{"autentication": "Autenticação inválida"})
+	if !util.VerifyPassword(userLogin.Password, user.Password) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "email or password is incorrect"})
 		return
 	}
 
-	token, err := util.GenerateJWT(usuario.UserId, usuario.Email, usuario.Password)
+	token, err := util.GenerateJWT(user.UserId, user.Email, user.Password)
 	if err != nil {
-		c.JSON(500, gin.H{"error": "Erro ao gerar token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error generating token"})
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"data":  usuario,
-		"Token": token,
+	c.JSON(http.StatusOK, gin.H{
+		"data": token,
 	})
 }

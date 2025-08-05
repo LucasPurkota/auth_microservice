@@ -41,6 +41,11 @@ func GenerateJWT(userID, email, password string) (string, error) {
 }
 
 func ValidateToken(tokenString string) (*CustomClaims, error) {
+	if tokenString == "" {
+		return nil, fmt.Errorf("token is required")
+	}
+
+	tokenString = tokenString[len("Bearer "):]
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("invalid token")
@@ -63,12 +68,11 @@ func ValidateToken(tokenString string) (*CustomClaims, error) {
 		}
 	}
 
-	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
-		if claims.UserID == "" || claims.Email == "" {
-			return nil, fmt.Errorf("invalid claims")
-		}
-		return claims, nil
+	if claims, ok := token.Claims.(*CustomClaims); !ok && !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	} else if claims.UserID == "" || claims.Email == "" {
+		return nil, fmt.Errorf("invalid claims")
 	}
 
-	return nil, fmt.Errorf("invalid token")
+	return nil, nil
 }

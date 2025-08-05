@@ -1,11 +1,9 @@
 package routes
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/LucasPurkota/auth_microservice/internal/controller"
-	"github.com/LucasPurkota/auth_microservice/internal/util"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -29,32 +27,17 @@ func SetupRoutes() *gin.Engine {
 
 	personFinance := route.Group("/auth_microservice")
 	{
-		personFinance.GET("/login/:email/:senha", controller.Login)
+		personFinance.GET("/health", controller.Health)
+		personFinance.POST("/login", controller.Login)
+		personFinance.GET("/auth", controller.Auth)
 		user := personFinance.Group("/users")
 		{
 			user.POST("/", controller.CreateUser)
-			user.PUT("/", auth, controller.UpdateUser)
-			user.DELETE("/:id", auth, controller.DeleteUser)
+			user.PUT("/:id", controller.UpdateUser)
+			user.PATCH("/:id/password", controller.UpdatePassword)
+			user.DELETE("/:id", controller.DeleteUser)
 		}
 	}
 
 	return route
-}
-
-func auth(c *gin.Context) {
-	token := c.GetHeader("Authorization")
-	if token == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
-		c.Abort()
-		return
-	}
-
-	_, err := util.ValidateToken(token)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		c.Abort()
-		return
-	}
-
-	c.Next()
 }

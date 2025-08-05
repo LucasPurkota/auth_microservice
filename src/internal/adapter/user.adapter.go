@@ -23,6 +23,14 @@ func UserCreatedToEntity(userCreated dto.UserCreated) entity.User {
 	}
 }
 
+func UserUpdateToEntity(userUpdate dto.UserUpdate) entity.User {
+	return entity.User{
+		Name:     userUpdate.Name,
+		LastName: userUpdate.LastName,
+		Email:    userUpdate.Email,
+	}
+}
+
 func UserEntityToResponse(user entity.User) dto.UserResponse {
 	return dto.UserResponse{
 		Name:     user.Name,
