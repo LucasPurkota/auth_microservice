@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/LucasPurkota/auth_microservice/internal/adapter"
 	"github.com/LucasPurkota/auth_microservice/internal/model"
 	"github.com/LucasPurkota/auth_microservice/internal/util"
 )
@@ -33,21 +34,15 @@ func (s *UserService) CreateUser(ctx context.Context, input model.UserCreated) e
 		return err
 	}
 
-	user := &model.User{
-		Name:     input.Name,
-		Email:    input.Email,
-		Password: hashedPassword,
-	}
+	input.Password = hashedPassword
+	user := adapter.UserCreatedToEntity(input)
 
-	return s.repo.Create(ctx, user)
+	return s.repo.Create(ctx, &user)
 }
 
 func (s *UserService) UpdateUser(ctx context.Context, id string, input model.UserUpdate) error {
-	user := &model.User{
-		Name:  input.Name,
-		Email: input.Email,
-	}
-	return s.repo.Update(ctx, id, user)
+	user := adapter.UserUpdateToEntity(input)
+	return s.repo.Update(ctx, id, &user)
 }
 
 func (s *UserService) UpdatePassword(ctx context.Context, id string, input model.UserUpdatePassword) error {
